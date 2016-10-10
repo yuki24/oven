@@ -1,4 +1,6 @@
 Oven.bake :ApiClient, destination: "tmp/" do
+  format :json
+
   get :users, "/api/v2/users"
   get :user, ->(id) { "/api/v2/users/#{id}" }
   post :user, "/api/v2/users"

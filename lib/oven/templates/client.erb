@@ -61,11 +61,29 @@ class <%= client_name %>
     uri
   end
 
+  class JsonCallback
+    require 'json'
+
+    APPLICATION_JSON     = 'application/json'.freeze
+    JSON_REQUEST_HEADERS = {
+      'Content-Type' => APPLICATION_JSON,
+      'Accept'       => APPLICATION_JSON
+    }.freeze
+
+    def before_request(uri, body, headers, options)
+      [uri, (body.nil? ? body : JSON.dump(body)), headers.merge(JSON_REQUEST_HEADERS), options]
+    end
+
+    def received_response(response)
+      JSON.load(response.body)
+    end
+  end
+
   class ForceSSL
     def before_request(uri, body, headers, options)
       [uri, body, headers, options.merge!(use_ssl: true)]
     end
   end
 
-  private_constant :ForceSSL
+  private_constant :ForceSSL, :JsonCallback
 end

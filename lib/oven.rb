@@ -57,10 +57,19 @@ module Oven
   class DslContext < BasicObject
     attr_reader :method_definitions, :interceptors, :observers
 
+    FORMAT_MAPPING = {
+      json: "JsonCallback.new"
+    }
+
     def initialize
       @method_definitions = []
       @interceptors = []
       @observers = []
+    end
+
+    def format(format)
+      @interceptors << FORMAT_MAPPING.fetch(format)
+      @observers << FORMAT_MAPPING.fetch(format)
     end
 
     def get(resource_name, path)
