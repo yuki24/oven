@@ -53,4 +53,12 @@ class ApiClientTest < Minitest::Test
     assert_requested :delete, "http://example.org/api/v2/users/1",
                      headers: {'Accept' => 'application/json', 'Content-Type': 'application/json'}
   end
+
+  def test_as_option_oevrrides_method_name
+    assert !@client.respond_to?(:get_authentication), 'The default method should not be defined when the :as option is given'
+
+    @client.authentication
+    assert_requested :get, "http://example.org/authentication",
+                     headers: {'Accept' => 'application/json', 'Content-Type': 'application/json'}
+  end
 end

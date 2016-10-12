@@ -6,4 +6,6 @@ Oven.bake :ApiClient, destination: "tmp/" do
   post :user, "/api/v2/users"
   patch :user, ->(id) { "/api/v2/users/#{id}" }
   delete :user, ->(id) { "/api/v2/users/#{id}" }
+
+  get :authentication, "/authentication", as: :authentication
 end

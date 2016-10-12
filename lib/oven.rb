@@ -72,28 +72,28 @@ module Oven
       @observers << FORMAT_MAPPING.fetch(format)
     end
 
-    def get(resource_name, path)
-      @method_definitions << MethodDefinition::Get.new(resource_name, path)
+    def get(resource_name, path, as: nil)
+      @method_definitions << MethodDefinition::Get.new(resource_name, path, as: as)
     end
 
-    def post(resource_name, path)
-      @method_definitions << MethodDefinition::Post.new(resource_name, path)
+    def post(resource_name, path, as: nil)
+      @method_definitions << MethodDefinition::Post.new(resource_name, path, as: as)
     end
 
-    def patch(resource_name, path)
-      @method_definitions << MethodDefinition::Patch.new(resource_name, path)
+    def patch(resource_name, path, as: nil)
+      @method_definitions << MethodDefinition::Patch.new(resource_name, path, as: as)
     end
 
-    def delete(resource_name, path)
-      @method_definitions << MethodDefinition::Delete.new(resource_name, path)
+    def delete(resource_name, path, as: nil)
+      @method_definitions << MethodDefinition::Delete.new(resource_name, path, as: as)
     end
 
     module MethodDefinition
       class HttpVerb
         attr_reader :name
 
-        def initialize(name, path)
-          @name, @path = name, path
+        def initialize(name, path, as: nil)
+          @name, @path, @method_name, @aliases = name, path, as, (as ? [] : nil)
           @path = ->(){ path } if path.is_a?(String)
         end
 
@@ -102,7 +102,7 @@ module Oven
         end
 
         def method_name
-          raise NotImplementedError
+          @method_name
         end
 
         def variable_name_for_body
@@ -117,6 +117,10 @@ module Oven
         def parameters
           @path.parameters.select{|param| param.first == :req }.map(&:last)
         end
+
+        def aliases
+          @aliases
+        end
       end
 
       class Get < HttpVerb
@@ -129,7 +133,7 @@ module Oven
         end
 
         def method_name
-          "#{verb}_#{name}"
+          super || "#{verb}_#{name}"
         end
 
         def variable_name_for_body
@@ -137,7 +141,7 @@ module Oven
         end
 
         def aliases
-          ["find_#{name}"]
+          super || ["find_#{name}"]
         end
       end
 
@@ -151,7 +155,7 @@ module Oven
         end
 
         def method_name
-          "#{verb}_#{name}"
+          super || "#{verb}_#{name}"
         end
 
         def variable_name_for_body
@@ -159,7 +163,7 @@ module Oven
         end
 
         def aliases
-          ["create_#{name}"]
+          super || ["create_#{name}"]
         end
       end
 
@@ -173,7 +177,7 @@ module Oven
         end
 
         def method_name
-          "#{verb}_#{name}"
+          super || "#{verb}_#{name}"
         end
 
         def variable_name_for_body
@@ -181,7 +185,7 @@ module Oven
         end
 
         def aliases
-          ["update_#{name}"]
+          super || ["update_#{name}"]
         end
       end
 
@@ -195,7 +199,7 @@ module Oven
         end
 
         def method_name
-          "#{verb}_#{name}"
+          super || "#{verb}_#{name}"
         end
 
         def variable_name_for_body
@@ -203,7 +207,7 @@ module Oven
         end
 
         def aliases
-          ["destroy_#{name}"]
+          super || ["destroy_#{name}"]
         end
       end
     end
