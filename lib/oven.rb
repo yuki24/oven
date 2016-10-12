@@ -14,7 +14,7 @@ module Oven
     end
 
     def generate
-      code = ERB.new(open("#{__dir__}/oven/templates/client.erb").read).result(binding)
+      code = ERB.new(open("#{__dir__}/oven/templates/client.erb.rb").read).result(binding)
       path = File.join(destination, "#{underscore(client_name)}.rb")
 
       File.write(path, code)
