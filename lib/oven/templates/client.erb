@@ -80,11 +80,5 @@ class <%= client_name %>
     end
   end
 
-  class ForceSSL
-    def before_request(uri, body, headers, options)
-      [uri, body, headers, options.merge!(use_ssl: true)]
-    end
-  end
-
-  private_constant :ForceSSL, :JsonCallback
+  private_constant :JsonCallback
 end
