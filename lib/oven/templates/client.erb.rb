@@ -23,6 +23,7 @@ class <%= client_name %>
   def <%= definition.method_name %>(<%= definition.parameter_signature %>query_params: {}, headers: {}, **options)
     request(Net::HTTP::<%= definition.class.name.split("::").last %>, uri("<%= definition.path %>", query_params), <%= definition.variable_name_for_body %>, headers, options)
   end
+  <% definition.aliases.each {|name| %>alias <%= name %> <%= definition.method_name %><% } %>
   <% end %>
   private
 

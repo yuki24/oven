@@ -135,6 +135,10 @@ module Oven
         def variable_name_for_body
           'nil'
         end
+
+        def aliases
+          ["find_#{name}"]
+        end
       end
 
       class Post < HttpVerb
@@ -152,6 +156,10 @@ module Oven
 
         def variable_name_for_body
           'body'
+        end
+
+        def aliases
+          ["create_#{name}"]
         end
       end
 
@@ -171,6 +179,10 @@ module Oven
         def variable_name_for_body
           'body'
         end
+
+        def aliases
+          ["update_#{name}"]
+        end
       end
 
       class Delete < HttpVerb
@@ -188,6 +200,10 @@ module Oven
 
         def variable_name_for_body
           'nil'
+        end
+
+        def aliases
+          ["destroy_#{name}"]
         end
       end
     end
