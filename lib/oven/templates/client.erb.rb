@@ -20,12 +20,12 @@ class <%= client_name %>
   def register_observer(observer)
     @observers << observer
   end
-  <% method_definitions.each do |definition| %>
+  <%- method_definitions.each do |definition| %>
   def <%= definition.method_name %>(<%= definition.parameter_signature %>query_params: {}, headers: {}, **options)
     request(Net::HTTP::<%= definition.class.name.split("::").last %>, uri("<%= definition.path %>", query_params), <%= definition.variable_name_for_body %>, headers, options)
   end
   <% definition.aliases.each {|name| %>alias <%= name %> <%= definition.method_name %><% } %>
-  <% end %>
+  <%- end %>
   private
 
   DEFAULT_OPTIONS = {
