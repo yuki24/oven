@@ -1,5 +1,7 @@
 require "oven/version"
+require "oven/http_statuses"
 require 'erb'
+require 'fileutils'
 
 module Oven
   def self.bake(client_name, destination: './', &block)
@@ -7,6 +9,14 @@ module Oven
   end
 
   class ApiClientBuilder
+    API_CLIENT_TEMPALTE     = open("#{__dir__}/oven/templates/client.erb.rb").read
+    EXCEPTION_LIST_TEMPLATE = open("#{__dir__}/oven/templates/exceptions.erb.rb").read
+
+    TEMPLATES = {
+      '.rb'            => API_CLIENT_TEMPALTE,
+      '/exceptions.rb' => EXCEPTION_LIST_TEMPLATE
+    }
+
     attr_reader :client_name, :destination
 
     def initialize(client_name, destination, &block)
@@ -14,10 +24,12 @@ module Oven
     end
 
     def generate
-      code = ERB.new(open("#{__dir__}/oven/templates/client.erb.rb").read).result(binding)
-      path = File.join(destination, "#{underscore(client_name)}.rb")
-
-      File.write(path, code)
+      FileUtils.mkdir_p("#{destination}/#{underscore(client_name)}")
+      TEMPLATES.each do |path, template|
+        code = ERB.new(template, nil, '-').result(binding)
+        path = File.join(destination, "#{underscore(client_name)}#{path}")
+        File.write(path, code)
+      end
     end
 
     def method_definitions

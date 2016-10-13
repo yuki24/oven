@@ -61,4 +61,34 @@ class ApiClientTest < Minitest::Test
     assert_requested :get, "http://example.org/authentication",
                      headers: {'Accept' => 'application/json', 'Content-Type': 'application/json'}
   end
+
+  def test_exception_raises_when_timing_out
+    stub_request(:any, /http:\/\/example\.org\/*/).to_timeout
+
+    error = assert_raises(ApiClient::NetworkError) { @client.get_users }
+
+    assert_equal "A network error occurred: Timeout::Error (execution expired)", error.message
+  end
+
+  def test_exception_raises_when_bad_request
+    stub_request(:any, /http:\/\/example\.org\/*/).to_return(status: 400, body: 'Error')
+
+    error = assert_raises(ApiClient::BadRequest){ @client.get_users }
+
+    message, response = error.message, error.response
+    assert_equal "Receieved an error response: 400 BadRequest", message
+    assert_equal "400", response.code
+    assert_equal "Error", response.body
+  end
+
+  def test_exception_raises_when_internal_server_error
+    stub_request(:any, /http:\/\/example\.org\/*/).to_return(status: 500, body: 'Error')
+
+    error = assert_raises(ApiClient::InternalServerError){ @client.get_users }
+
+    message, response = error.message, error.response
+    assert_equal "Receieved an error response: 500 InternalServerError", message
+    assert_equal "500", response.code
+    assert_equal "Error", response.body
+  end
 end
