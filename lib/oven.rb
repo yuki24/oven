@@ -35,17 +35,9 @@ module Oven
       end
     end
 
-    def method_definitions
-      dsl_context.method_definitions
-    end
-
-    def interceptors
-      dsl_context.interceptors
-    end
-
-    def observers
-      dsl_context.observers
-    end
+    def method_definitions() dsl_context.method_definitions end
+    def interceptors()       dsl_context.interceptors end
+    def observers()          dsl_context.observers end
 
     private
 
