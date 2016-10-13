@@ -1,6 +1,6 @@
 # -*- frozen-string-literal: true -*-
 require 'net/http'
-require "#{__dir__}/<%= underscore(client_name) %>/exceptions"
+require "#{__dir__}/<%= client_name.underscore %>/exceptions"
 
 class <%= client_name %>
   attr_reader :domain, :proxy_addr, :proxy_port, :proxy_user, :proxy_password

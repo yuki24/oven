@@ -1,5 +1,6 @@
 require "oven/version"
 require "oven/http_statuses"
+require "oven/refinements"
 require 'erb'
 require 'fileutils'
 
@@ -9,6 +10,8 @@ module Oven
   end
 
   class ApiClientBuilder
+    using Utils
+
     API_CLIENT_TEMPALTE     = open("#{__dir__}/oven/templates/client.erb.rb").read
     EXCEPTION_LIST_TEMPLATE = open("#{__dir__}/oven/templates/exceptions.erb.rb").read
 
@@ -24,10 +27,10 @@ module Oven
     end
 
     def generate
-      FileUtils.mkdir_p("#{destination}/#{underscore(client_name)}")
+      FileUtils.mkdir_p("#{destination}/#{client_name.underscore}")
       TEMPLATES.each do |path, template|
         code = ERB.new(template, nil, '-').result(binding)
-        path = File.join(destination, "#{underscore(client_name)}#{path}")
+        path = File.join(destination, "#{client_name.underscore}#{path}")
         File.write(path, code)
       end
     end
@@ -52,17 +55,6 @@ module Oven
                          context.instance_eval(&@block)
                          context
                        end
-    end
-
-    def underscore(camel_cased_word)
-      return camel_cased_word unless camel_cased_word =~ /[A-Z-]|::/
-      word = camel_cased_word.to_s.gsub('::', '/')
-      word.gsub!(/(?:(?<=([A-Za-z\d]))|\b)(#{/(?=a)b/})(?=\b|[^a-z])/) { "#{$1 && '_'}#{$2.downcase}" }
-      word.gsub!(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2')
-      word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
-      word.tr!("-", "_")
-      word.downcase!
-      word
     end
   end
 
