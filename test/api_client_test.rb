@@ -1,7 +1,8 @@
 require 'test_helper'
 require 'examples/api_client'
 
-require_relative '../tmp/api_client'
+ # This loads the file `tmp/api_client.rb`
+require 'api_client'
 
 class ApiClientTest < Minitest::Test
   def setup
