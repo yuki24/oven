@@ -18,146 +18,118 @@ module Oven
     end
 
     def get(resource_name, path, as: nil)
-      @method_definitions << MethodDefinition::Get.new(resource_name, path, as: as)
+      @method_definitions << Get.new(resource_name, path, as: as)
     end
 
     def post(resource_name, path, as: nil)
-      @method_definitions << MethodDefinition::Post.new(resource_name, path, as: as)
+      @method_definitions << Post.new(resource_name, path, as: as)
     end
 
     def patch(resource_name, path, as: nil)
-      @method_definitions << MethodDefinition::Patch.new(resource_name, path, as: as)
+      @method_definitions << Patch.new(resource_name, path, as: as)
     end
 
     def delete(resource_name, path, as: nil)
-      @method_definitions << MethodDefinition::Delete.new(resource_name, path, as: as)
+      @method_definitions << Delete.new(resource_name, path, as: as)
     end
 
-    module MethodDefinition
-      class HttpVerb
-        attr_reader :name
+    class HttpVerb
+      using Patches::ToProc
+      attr_reader :name, :method_name, :aliases
 
-        def initialize(name, path, as: nil)
-          @name, @path, @method_name, @aliases = name, path, as, (as ? [] : nil)
-          @path = ->(){ path } if path.is_a?(String)
-        end
-
-        def parameter_signature
-          raise NotImplementedError
-        end
-
-        def method_name
-          @method_name
-        end
-
-        def variable_name_for_body
-          raise NotImplementedError
-        end
-
-        def path
-          args = @path.parameters.select{|param| param.first == :req }.map{|req| "\#{#{req.last}}" }
-          @path.call(*args)
-        end
-
-        def parameters
-          @path.parameters.select{|param| param.first == :req }.map(&:last)
-        end
-
-        def aliases
-          @aliases
-        end
+      def initialize(name, path, as: nil)
+        @name        = name
+        @path        = path.to_proc
+        @method_name = as || "#{verb}_#{name}"
+        @aliases     = as ? [] : nil
       end
 
-      class Get < HttpVerb
-        def verb
-          :get
-        end
-
-        def parameter_signature
-          "#{parameters.join(', ')}#{', ' if !parameters.empty?}"
-        end
-
-        def method_name
-          super || "#{verb}_#{name}"
-        end
-
-        def variable_name_for_body
-          'nil'
-        end
-
-        def aliases
-          super || ["find_#{name}"]
-        end
+      def verb
+        raise NotImplementedError
       end
 
-      class Post < HttpVerb
-        def verb
-          :post
-        end
-
-        def parameter_signature
-          "#{parameters.join(", ")}#{", " if !parameters.empty?}body, "
-        end
-
-        def method_name
-          super || "#{verb}_#{name}"
-        end
-
-        def variable_name_for_body
-          'body'
-        end
-
-        def aliases
-          super || ["create_#{name}"]
-        end
+      def variable_name_for_body
+        raise NotImplementedError
       end
 
-      class Patch < HttpVerb
-        def verb
-          :patch
-        end
-
-        def parameter_signature
-          "#{parameters.join(", ")}#{", " if !parameters.empty?}body, "
-        end
-
-        def method_name
-          super || "#{verb}_#{name}"
-        end
-
-        def variable_name_for_body
-          'body'
-        end
-
-        def aliases
-          super || ["update_#{name}"]
-        end
+      def path
+        @path.call(* parameters.reject{|req| req == :body }.map{|req| "\#{#{req}}" })
       end
 
-      class Delete < HttpVerb
-        def verb
-          :delete
-        end
+      def parameters
+        @path.parameters.select{|param| param.first == :req }.map(&:last)
+      end
 
-        def parameter_signature
-          "#{parameters.join(", ")}#{", " if !parameters.empty?}"
-        end
-
-        def method_name
-          super || "#{verb}_#{name}"
-        end
-
-        def variable_name_for_body
-          'nil'
-        end
-
-        def aliases
-          super || ["destroy_#{name}"]
-        end
+      def parameter_signature
+        parameters.join(", ")
       end
     end
 
-    private_constant :MethodDefinition
+    class Get < HttpVerb
+      def verb
+        :get
+      end
+
+      def variable_name_for_body
+        'nil'
+      end
+
+      def aliases
+        super || ["find_#{name}"]
+      end
+    end
+
+    class Post < HttpVerb
+      def verb
+        :post
+      end
+
+      def parameters
+        super.dup << :body
+      end
+
+      def variable_name_for_body
+        'body'
+      end
+
+      def aliases
+        super || ["create_#{name}"]
+      end
+    end
+
+    class Patch < HttpVerb
+      def verb
+        :patch
+      end
+
+      def parameters
+        super.dup << :body
+      end
+
+      def variable_name_for_body
+        'body'
+      end
+
+      def aliases
+        super || ["update_#{name}"]
+      end
+    end
+
+    class Delete < HttpVerb
+      def verb
+        :delete
+      end
+
+      def variable_name_for_body
+        'nil'
+      end
+
+      def aliases
+        super || ["destroy_#{name}"]
+      end
+    end
+
+    private_constant :HttpVerb, :Get, :Post, :Patch, :Delete
   end
 
   private_constant :DslContext

@@ -21,7 +21,7 @@ class <%= client_name %>
     @observers << observer
   end
   <%- method_definitions.each do |definition| %>
-  def <%= definition.method_name %>(<%= definition.parameter_signature %>query: {}, headers: {}, **options)
+  def <%= definition.method_name %>(<%= definition.parameter_signature %><%= ', ' if !definition.parameters.empty? %>query: {}, headers: {}, **options)
     request(Net::HTTP::<%= definition.class.name.split("::").last %>, uri("<%= definition.path %>", query), <%= definition.variable_name_for_body %>, headers, options)
   end
   <% definition.aliases.each {|name| %>alias <%= name %> <%= definition.method_name %><% } %>

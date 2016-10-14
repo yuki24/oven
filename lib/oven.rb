@@ -11,7 +11,7 @@ module Oven
   end
 
   class ApiClientBuilder
-    using Utils
+    using Patches::Underscore
 
     API_CLIENT_TEMPALTE     = open("#{__dir__}/oven/templates/client.erb.rb").read
     EXCEPTION_LIST_TEMPLATE = open("#{__dir__}/oven/templates/exceptions.erb.rb").read

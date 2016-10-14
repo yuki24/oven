@@ -1,22 +1,32 @@
 # -*- frozen-string-literal: true -*-
 module Oven
-  module Utils
-    refine Symbol do
-      def underscore
-        to_s.underscore
+  module Patches
+    module ToProc
+      refine String do
+        def to_proc
+          ->(){ self }
+        end
       end
     end
 
-    refine String do
-      def underscore
-        return self unless self =~ /[A-Z-]|::/
-        word = gsub('::', '/')
-        word.gsub!(/(?:(?<=([A-Za-z\d]))|\b)(#{/(?=a)b/})(?=\b|[^a-z])/) { "#{$1 && '_'}#{$2.downcase}" }
-        word.gsub!(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2')
-        word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
-        word.tr!("-", "_")
-        word.downcase!
-        word
+    module Underscore
+      refine Symbol do
+        def underscore
+          to_s.underscore
+        end
+      end
+
+      refine String do
+        def underscore
+          return self unless self =~ /[A-Z-]|::/
+          word = gsub('::', '/')
+          word.gsub!(/(?:(?<=([A-Za-z\d]))|\b)(#{/(?=a)b/})(?=\b|[^a-z])/) { "#{$1 && '_'}#{$2.downcase}" }
+          word.gsub!(/([A-Z\d]+)([A-Z][a-z])/, '\1_\2')
+          word.gsub!(/([a-z\d])([A-Z])/, '\1_\2')
+          word.tr!("-", "_")
+          word.downcase!
+          word
+        end
       end
     end
   end
