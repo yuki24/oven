@@ -21,8 +21,8 @@ class <%= client_name %>
     @observers << observer
   end
   <%- method_definitions.each do |definition| %>
-  def <%= definition.method_name %>(<%= definition.parameter_signature %>query_params: {}, headers: {}, **options)
-    request(Net::HTTP::<%= definition.class.name.split("::").last %>, uri("<%= definition.path %>", query_params), <%= definition.variable_name_for_body %>, headers, options)
+  def <%= definition.method_name %>(<%= definition.parameter_signature %>query: {}, headers: {}, **options)
+    request(Net::HTTP::<%= definition.class.name.split("::").last %>, uri("<%= definition.path %>", query), <%= definition.variable_name_for_body %>, headers, options)
   end
   <% definition.aliases.each {|name| %>alias <%= name %> <%= definition.method_name %><% } %>
   <%- end %>
@@ -63,9 +63,9 @@ class <%= client_name %>
     @observers.reduce(response) {|r, o| o.received_response(r) }
   end
 
-  def uri(path, query_params = {})
+  def uri(path, query = {})
     uri = URI.join(domain, path)
-    uri.query = URI.encode_www_form(query_params) if !query_params.empty?
+    uri.query = URI.encode_www_form(query) if !query.empty?
     uri
   end
 

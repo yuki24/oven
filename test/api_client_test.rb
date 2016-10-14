@@ -11,21 +11,21 @@ class ApiClientTest < Minitest::Test
   end
 
   def test_get_all_resources
-    @client.get_users(query_params: {page: 1})
+    @client.get_users(query: {page: 1})
 
     assert_requested :get, "http://example.org/api/v2/users?page=1",
                      headers: {'Accept' => 'application/json', 'Content-Type': 'application/json'}
   end
 
   def test_get_all_resources_with_custom_header
-    @client.get_users(query_params: {page: 1}, headers: {'Accept' => '*/*', 'Content-Type': ''})
+    @client.get_users(query: {page: 1}, headers: {'Accept' => '*/*', 'Content-Type': ''})
 
     assert_requested :get, "http://example.org/api/v2/users?page=1",
                      headers: {'Accept' => 'application/json', 'Content-Type': 'application/json'}
   end
 
   def test_get_single_resource
-    @client.get_user(1, query_params: {page: 1})
+    @client.get_user(1, query: {page: 1})
 
     assert_requested :get, "http://example.org/api/v2/users/1?page=1",
                      headers: {'Accept' => 'application/json', 'Content-Type': 'application/json'}
