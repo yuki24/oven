@@ -4,4 +4,4 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'purdytest'
-gem 'byebug'
+gem 'byebug', platforms: :mri
