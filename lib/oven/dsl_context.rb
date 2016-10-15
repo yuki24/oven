@@ -1,20 +1,24 @@
 module Oven
   class DslContext < BasicObject
-    attr_reader :method_definitions, :interceptors, :observers
+    attr_reader :method_definitions, :interceptors, :observers, :requires, :extensions
 
-    FORMAT_MAPPING = {
-      json: "JsonCallback.new"
-    }
-
-    def initialize
+    def initialize(extensions, format_mapping)
       @method_definitions = []
       @interceptors = []
       @observers = []
+      @requires = []
+      @extensions = extensions || []
+      @format_mapping = format_mapping || {}
     end
 
     def format(format)
-      @interceptors << FORMAT_MAPPING.fetch(format)
-      @observers << FORMAT_MAPPING.fetch(format)
+      @extensions << @format_mapping.fetch(format).new
+    end
+
+    def configure(extension)
+      extension.configure_interceptors(@interceptors) if extension.respond_to?(:configure_interceptors)
+      extension.configure_observers(@observers) if extension.respond_to?(:configure_observers)
+      extension.configure_requires(@requires) if extension.respond_to?(:configure_requires)
     end
 
     def get(resource_name, path, as: nil)

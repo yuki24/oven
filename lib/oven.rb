@@ -1,37 +1,53 @@
 require "oven/version"
 require "oven/http_statuses"
 require "oven/refinements"
+require "oven/extension_configurers"
 require "oven/dsl_context"
+
 require 'erb'
 require 'fileutils'
 
 module Oven
+  @@extensions = [ ExceptionConfigurer.new ]
+
+  def self.register_extension(extension)
+    @@extensions << extension
+  end
+
+  @@format_mapping = { json: JsonConfigurer }
+
+  def self.register_format(format_type, format_configurer)
+    @@format_mapping[format_type.downcase.to_sym] = format_configurer
+  end
+
   def self.bake(client_name, destination: './', &block)
-    ApiClientBuilder.new(client_name, destination, &block).generate
+    context = DslContext.new(@@extensions.dup, @@format_mapping.dup)
+    context.instance_eval(&block)
+    context.extensions.each {|extension| context.configure(extension) }
+
+    ApiClientBuilder.new(client_name, destination, context).generate
   end
 
   class ApiClientBuilder
     using Patches::Underscore
+    attr_reader :client_name, :destination, :namespace, :dsl_context
 
-    API_CLIENT_TEMPALTE     = open("#{__dir__}/oven/templates/client.erb.rb").read
-    EXCEPTION_LIST_TEMPLATE = open("#{__dir__}/oven/templates/exceptions.erb.rb").read
+    def initialize(client_name, destination, context, &block)
+      @client_name, @destination, @dsl_context, @block = client_name, destination, context, block
 
-    TEMPLATES = {
-      '.rb'            => API_CLIENT_TEMPALTE,
-      '/exceptions.rb' => EXCEPTION_LIST_TEMPLATE
-    }
-
-    attr_reader :client_name, :destination
-
-    def initialize(client_name, destination, &block)
-      @client_name, @destination, @block = client_name, destination, block
+      @namespace = client_name.underscore.namespace
     end
 
     def generate
-      FileUtils.mkdir_p("#{destination}/#{client_name.underscore}")
-      TEMPLATES.each do |path, template|
-        code = ERB.new(template, nil, '-').result(binding)
-        path = File.join(destination, "#{client_name.underscore}#{path}")
+      root_path = File.join([destination, namespace].compact)
+      filename  = File.basename(client_name.underscore)
+
+      FileUtils.mkdir_p(root_path)
+      ([ApiClientConfigurer.new] + dsl_context.extensions).each do |extension|
+        template = open(extension.template_path).read
+        path     = extension.filename(root_path, filename)
+        code     = ERB.new(template, nil, '-').result(binding)
+
         File.write(path, code)
       end
     end
@@ -39,16 +55,7 @@ module Oven
     def method_definitions() dsl_context.method_definitions end
     def interceptors()       dsl_context.interceptors end
     def observers()          dsl_context.observers end
-
-    private
-
-    def dsl_context
-      @dsl_context ||= begin
-                         context = DslContext.new
-                         context.instance_eval(&@block)
-                         context
-                       end
-    end
+    def requires()           dsl_context.requires end
   end
 
   private_constant :ApiClientBuilder

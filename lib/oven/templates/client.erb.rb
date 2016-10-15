@@ -1,16 +1,22 @@
 # -*- frozen-string-literal: true -*-
 require 'net/http'
-require '<%= client_name.underscore %>/exceptions'
+<%- requires.each do |_require| -%>
+require '<%= File.join([namespace, _require].compact) %>'
+<%- end -%>
 
 class <%= client_name %>
   attr_reader :domain, :proxy_addr, :proxy_port, :proxy_user, :proxy_password
 
   def initialize(domain, proxy_addr: nil, proxy_port: nil, proxy_user: nil, proxy_password: nil)
-    @domain, @proxy_addr, @proxy_port, @proxy_user, @proxy_password =
-      domain, proxy_addr, proxy_port, proxy_user, proxy_password
+    @domain, @proxy_addr, @proxy_port, @proxy_user, @proxy_password, @interceptors, @observers =
+      domain, proxy_addr, proxy_port, proxy_user, proxy_password, [], []
 
-    @interceptors = [<%= interceptors.join(", ") %>]
-    @observers    = [ResponseHandler.new, <%= observers.join(", ") %>]
+    <%- interceptors.each do |interceptor| -%>
+    register_interceptor(<%= interceptor %>.new)
+    <%- end -%>
+    <%- observers.each do |observer| -%>
+    register_observer(<%= observer %>.new)
+    <%- end -%>
   end
 
   def register_interceptor(interceptor)
@@ -68,24 +74,4 @@ class <%= client_name %>
     uri.query = URI.encode_www_form(query) if !query.empty?
     uri
   end
-
-  class JsonCallback
-    require 'json'
-
-    APPLICATION_JSON     = 'application/json'.freeze
-    JSON_REQUEST_HEADERS = {
-      'Content-Type' => APPLICATION_JSON,
-      'Accept'       => APPLICATION_JSON
-    }.freeze
-
-    def before_request(uri, body, headers, options)
-      [uri, (body.nil? ? body : JSON.dump(body)), headers.merge(JSON_REQUEST_HEADERS), options]
-    end
-
-    def received_response(response)
-      JSON.parse(response.body, object_class: OpenStruct) if response.body
-    end
-  end
-
-  private_constant :JsonCallback
 end

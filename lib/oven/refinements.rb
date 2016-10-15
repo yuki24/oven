@@ -27,6 +27,10 @@ module Oven
           word.downcase!
           word
         end
+
+        def namespace
+          self[0, rindex('/') || -1]
+        end
       end
     end
   end
