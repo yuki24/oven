@@ -5,4 +5,5 @@ require 'oven'
 require 'minitest/autorun'
 require 'webmock/minitest'
 require 'purdytest'
-require 'byebug'
+require 'bundler'
+Bundler.require
