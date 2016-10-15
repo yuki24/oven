@@ -5,7 +5,7 @@ module Oven
     end
 
     def template_path
-      "#{__dir__}/templates/client.erb.rb"
+      "#{__dir__}/templates/client.rb.erb"
     end
   end
 
@@ -15,7 +15,7 @@ module Oven
     end
 
     def template_path
-      "#{__dir__}/templates/exceptions.erb.rb"
+      "#{__dir__}/templates/exceptions.rb.erb"
     end
 
     def configure_observers(observers)
