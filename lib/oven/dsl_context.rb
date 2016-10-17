@@ -1,3 +1,5 @@
+require 'oven/path_parser'
+
 module Oven
   class DslContext < BasicObject
     attr_reader :method_definitions, :interceptors, :observers, :requires, :extensions
@@ -43,7 +45,7 @@ module Oven
 
       def initialize(name, path, as: nil)
         @name        = name
-        @path        = path.to_proc
+        @path_ast    = Oven::PathParser.parse(path)
         @method_name = as || "#{verb}_#{name}"
         @aliases     = as ? [] : nil
       end
@@ -57,11 +59,11 @@ module Oven
       end
 
       def path
-        @path.call(* parameters.reject{|req| req == :body }.map{|req| "\#{#{req}}" })
+        @path_ast.to_argument_expression
       end
 
       def parameters
-        @path.parameters.select{|param| param.first == :req }.map(&:last)
+        @path_ast.parameters
       end
 
       def parameter_signature
