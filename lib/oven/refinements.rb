@@ -1,14 +1,6 @@
 # -*- frozen-string-literal: true -*-
 module Oven
   module Patches
-    module ToProc
-      refine String do
-        def to_proc
-          ->(){ self }
-        end
-      end
-    end
-
     module Underscore
       refine Symbol do
         def underscore

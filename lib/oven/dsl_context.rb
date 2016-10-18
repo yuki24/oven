@@ -40,7 +40,6 @@ module Oven
     end
 
     class HttpVerb
-      using Patches::ToProc
       attr_reader :name, :method_name, :aliases
 
       def initialize(name, path, as: nil)
