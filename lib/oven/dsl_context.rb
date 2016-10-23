@@ -27,8 +27,16 @@ module Oven
       @method_definitions << Get.new(resource_name, path, as: as)
     end
 
+    def head(resource_name, path, as: nil)
+      @method_definitions << Head.new(resource_name, path, as: as)
+    end
+
     def post(resource_name, path, as: nil)
       @method_definitions << Post.new(resource_name, path, as: as)
+    end
+
+    def put(resource_name, path, as: nil)
+      @method_definitions << Put.new(resource_name, path, as: as)
     end
 
     def patch(resource_name, path, as: nil)
@@ -37,6 +45,10 @@ module Oven
 
     def delete(resource_name, path, as: nil)
       @method_definitions << Delete.new(resource_name, path, as: as)
+    end
+
+    def options(resource_name, path, as: nil)
+      @method_definitions << Options.new(resource_name, path, as: as)
     end
 
     class HttpVerb
@@ -84,6 +96,20 @@ module Oven
       end
     end
 
+    class Head < HttpVerb
+      def verb
+        :head
+      end
+
+      def variable_name_for_body
+        'nil'
+      end
+
+      def aliases
+        super || []
+      end
+    end
+
     class Post < HttpVerb
       def verb
         :post
@@ -120,6 +146,24 @@ module Oven
       end
     end
 
+    class Put < HttpVerb
+      def verb
+        :put
+      end
+
+      def parameters
+        super.dup << :body
+      end
+
+      def variable_name_for_body
+        'body'
+      end
+
+      def aliases
+        super || ["update_#{name}"]
+      end
+    end
+
     class Delete < HttpVerb
       def verb
         :delete
@@ -134,7 +178,21 @@ module Oven
       end
     end
 
-    private_constant :HttpVerb, :Get, :Post, :Patch, :Delete
+    class Options < HttpVerb
+      def verb
+        :options
+      end
+
+      def variable_name_for_body
+        'nil'
+      end
+
+      def aliases
+        super || []
+      end
+    end
+
+    private_constant :HttpVerb, :Get, :Head, :Post, :Patch, :Put, :Delete, :Options
   end
 
   private_constant :DslContext

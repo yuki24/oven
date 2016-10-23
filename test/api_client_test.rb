@@ -32,6 +32,15 @@ class ApiClientTest < Minitest::Test
                      headers: {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
   end
 
+  def test_head
+    response = @client.head_users
+
+    assert_requested :head, "http://example.org/api/v2/users",
+                     headers: {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
+
+    assert_nil response
+  end
+
   def test_post_single_resource
     @client.post_user(name: 'Yuki')
 
@@ -48,10 +57,25 @@ class ApiClientTest < Minitest::Test
                      headers: {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
   end
 
+  def test_put_single_resource
+    @client.put_user(1, name: 'Yuki')
+
+    assert_requested :put, "http://example.org/api/v2/users/1",
+                     body: '{"name":"Yuki"}',
+                     headers: {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
+  end
+
   def test_delete_single_resource
     @client.delete_user(1)
 
     assert_requested :delete, "http://example.org/api/v2/users/1",
+                     headers: {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
+  end
+
+  def test_options
+    @client.options_users
+
+    assert_requested :options, "http://example.org/api/v2/users",
                      headers: {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
   end
 
