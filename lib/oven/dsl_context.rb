@@ -24,49 +24,47 @@ module Oven
     end
 
     def get(resource_name, path, as: nil)
-      @method_definitions << Get.new(resource_name, path, as: as)
+      @method_definitions << HttpVerb.new(:get, resource_name, path, as: as, aliases: ["find_#{resource_name}"], has_entity: false)
     end
 
     def head(resource_name, path, as: nil)
-      @method_definitions << Head.new(resource_name, path, as: as)
+      @method_definitions << HttpVerb.new(:head, resource_name, path, as: as, aliases: [], has_entity: false)
     end
 
     def post(resource_name, path, as: nil)
-      @method_definitions << Post.new(resource_name, path, as: as)
+      @method_definitions << HttpVerb.new(:post, resource_name, path, as: as, aliases: ["create_#{resource_name}"], has_entity: true)
     end
 
     def put(resource_name, path, as: nil)
-      @method_definitions << Put.new(resource_name, path, as: as)
+      @method_definitions << HttpVerb.new(:put, resource_name, path, as: as, aliases: ["update_#{resource_name}"], has_entity: true)
     end
 
     def patch(resource_name, path, as: nil)
-      @method_definitions << Patch.new(resource_name, path, as: as)
+      @method_definitions << HttpVerb.new(:patch, resource_name, path, as: as, aliases: ["update_#{resource_name}"], has_entity: true)
     end
 
     def delete(resource_name, path, as: nil)
-      @method_definitions << Delete.new(resource_name, path, as: as)
+      @method_definitions << HttpVerb.new(:delete, resource_name, path, as: as, aliases: ["destroy_#{resource_name}"], has_entity: false)
     end
 
     def options(resource_name, path, as: nil)
-      @method_definitions << Options.new(resource_name, path, as: as)
+      @method_definitions << HttpVerb.new(:options, resource_name, path, as: as, aliases: [], has_entity: false)
     end
 
     class HttpVerb
-      attr_reader :name, :method_name, :aliases
+      attr_reader :verb, :name, :method_name, :aliases
 
-      def initialize(name, path, as: nil)
+      def initialize(verb, name, path, as: nil, aliases: [], has_entity: false)
+        @verb        = verb
         @name        = name
         @path_ast    = Oven::PathParser.parse(path)
         @method_name = as || "#{verb}_#{name}"
-        @aliases     = as ? [] : nil
-      end
-
-      def verb
-        raise NotImplementedError
+        @aliases     = as ? [] : aliases
+        @has_entity  = has_entity
       end
 
       def variable_name_for_body
-        raise NotImplementedError
+        @has_entity ? 'body' : 'nil'
       end
 
       def path
@@ -74,7 +72,7 @@ module Oven
       end
 
       def parameters
-        @path_ast.parameters
+        @path_ast.parameters + (@has_entity ? [:body] : [])
       end
 
       def parameter_signature
@@ -82,117 +80,7 @@ module Oven
       end
     end
 
-    class Get < HttpVerb
-      def verb
-        :get
-      end
-
-      def variable_name_for_body
-        'nil'
-      end
-
-      def aliases
-        super || ["find_#{name}"]
-      end
-    end
-
-    class Head < HttpVerb
-      def verb
-        :head
-      end
-
-      def variable_name_for_body
-        'nil'
-      end
-
-      def aliases
-        super || []
-      end
-    end
-
-    class Post < HttpVerb
-      def verb
-        :post
-      end
-
-      def parameters
-        super.dup << :body
-      end
-
-      def variable_name_for_body
-        'body'
-      end
-
-      def aliases
-        super || ["create_#{name}"]
-      end
-    end
-
-    class Patch < HttpVerb
-      def verb
-        :patch
-      end
-
-      def parameters
-        super.dup << :body
-      end
-
-      def variable_name_for_body
-        'body'
-      end
-
-      def aliases
-        super || ["update_#{name}"]
-      end
-    end
-
-    class Put < HttpVerb
-      def verb
-        :put
-      end
-
-      def parameters
-        super.dup << :body
-      end
-
-      def variable_name_for_body
-        'body'
-      end
-
-      def aliases
-        super || ["update_#{name}"]
-      end
-    end
-
-    class Delete < HttpVerb
-      def verb
-        :delete
-      end
-
-      def variable_name_for_body
-        'nil'
-      end
-
-      def aliases
-        super || ["destroy_#{name}"]
-      end
-    end
-
-    class Options < HttpVerb
-      def verb
-        :options
-      end
-
-      def variable_name_for_body
-        'nil'
-      end
-
-      def aliases
-        super || []
-      end
-    end
-
-    private_constant :HttpVerb, :Get, :Head, :Post, :Patch, :Put, :Delete, :Options
+    private_constant :HttpVerb
   end
 
   private_constant :DslContext
