@@ -18,6 +18,18 @@ class ApiClientTest < Minitest::Test
                      headers: {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
   end
 
+  def test_json_response
+    response_json = [{ name: 'Yuki' }, { name: 'Matz' }].to_json
+    stub_request(:any, /http:\/\/example\.org\/*/).to_return(body: response_json, headers: { 'Content-Length' => 42 })
+
+    response = @client.get_users(query: {page: 1})
+
+    assert_equal ["42"], response.headers['content-length']
+    assert_equal 2, response.json.size
+    assert_equal 'Yuki', response.json[0]['name']
+    assert_equal 'Matz', response.json[1]['name']
+  end
+
   def test_get_all_resources_with_custom_header
     @client.get_users(query: {page: 1}, headers: {'Accept' => '*/*', 'Content-Type' => ''})
 
@@ -38,7 +50,7 @@ class ApiClientTest < Minitest::Test
     assert_requested :head, "http://example.org/api/v2/users",
                      headers: {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
 
-    assert_nil response
+    assert_nil response.body
   end
 
   def test_post_single_resource
