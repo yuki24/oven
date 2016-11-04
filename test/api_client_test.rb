@@ -26,8 +26,14 @@ class ApiClientTest < Minitest::Test
 
     assert_equal ["42"], response.headers['content-length']
     assert_equal 2, response.json.size
-    assert_equal 'Yuki', response.json[0]['name']
-    assert_equal 'Matz', response.json[1]['name']
+
+    if RUBY_VERSION > '2.2.0'
+      assert_equal 'Yuki', response.json[0][:name]
+      assert_equal 'Matz', response.json[1][:name]
+    else
+      assert_equal 'Yuki', response.json[0]['name']
+      assert_equal 'Matz', response.json[1]['name']
+    end
   end
 
   def test_get_all_resources_with_custom_header
