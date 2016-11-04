@@ -120,6 +120,17 @@ module Oven
     end
   end
 
+  class MinitestConfigurer
+    def filename(path, client_filename)
+      FileUtils.mkdir_p("#{path}/test")
+      File.join(path, ('../' * path.split('/').size), 'test', "#{client_filename}_test.rb")
+    end
+
+    def template_path
+      "#{__dir__}/templates/minitest.rb.erb"
+    end
+  end
+
   private_constant :ApiClientConfigurer, :ExceptionConfigurer, :JsonConfigurer, :ObjectMapperConfigurer,
-                   :ModelsConfigurer
+                   :ModelsConfigurer, :MinitestConfigurer
 end

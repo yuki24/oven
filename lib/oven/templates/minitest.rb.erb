@@ -1,0 +1,17 @@
+class <%= client_name %>Test < Minitest::Test
+  ENDPOINT = 'http://api.example.org/' # TODO: Replace this to your API service.
+
+  def setup
+    @client = <%= client_name %>.new(ENDPOINT)
+  end
+  <%- method_definitions.each do |definition| %>
+  def test_<%= definition.method_name %>
+    <%- definition.parameters.each do |parameter| -%>
+    <%= parameter %> = # TODO: assign an appropriate value.
+    <%- end -%>
+    response = @client.<%= definition.method_name %>(<%= definition.parameter_signature %>)
+
+    assert_equal '200', response.code
+  end
+  <%- end %>
+end
