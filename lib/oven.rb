@@ -4,6 +4,7 @@ require "oven/refinements"
 require "oven/extension_configurers"
 require "oven/dsl_context"
 
+require 'forwardable'
 require 'erb'
 require 'fileutils'
 
@@ -32,6 +33,9 @@ module Oven
     using Patches::Underscore
     attr_reader :client_name, :destination, :namespace, :dsl_context
 
+    extend Forwardable
+    delegate [:method_definitions, :interceptors, :observers, :requires] => :dsl_context
+
     def initialize(client_name, destination, context, &block)
       @client_name, @destination, @dsl_context, @block = client_name, destination, context, block
 
@@ -51,11 +55,6 @@ module Oven
         File.write(path, code)
       end
     end
-
-    def method_definitions() dsl_context.method_definitions end
-    def interceptors()       dsl_context.interceptors end
-    def observers()          dsl_context.observers end
-    def requires()           dsl_context.requires end
   end
 
   private_constant :ApiClientBuilder
