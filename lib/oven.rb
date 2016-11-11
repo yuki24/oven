@@ -30,7 +30,7 @@ module Oven
   end
 
   class ApiClientBuilder
-    using Patches::Underscore
+    using Patches::StringExt
     attr_reader :client_name, :destination, :namespace, :dsl_context
 
     extend Forwardable

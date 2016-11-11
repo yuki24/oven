@@ -1,10 +1,14 @@
 # frozen-string-literal: true
 module Oven
   module Patches
-    module Underscore
+    module StringExt
       refine Symbol do
         def underscore
           to_s.underscore
+        end
+
+        def namespace
+          to_s.self[0, rindex('/') || -1].to_sym
         end
       end
 
