@@ -59,6 +59,7 @@ module Oven
         path     = extension.filename(destination, filename)
         code     = ERB.new(template, nil, '-').result(binding)
 
+        puts "generated: #{path}"
         File.write(path, code)
       end
     end
@@ -84,6 +85,7 @@ module Oven
         code = ErbContext.new(@namespace, class_name, attributes).to_code
         path = File.join(root_path, "#{class_name.underscore}.rb")
 
+        puts "generated: #{path}"
         File.write(path, code)
       end
 
@@ -94,6 +96,7 @@ module Oven
       end
 
       models_path = File.join(@destination, 'models.rb')
+      puts "generated: #{models_path}"
       File.write(models_path, buffer.join("\n"))
     end
 
