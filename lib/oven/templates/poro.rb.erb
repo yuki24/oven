@@ -1,0 +1,7 @@
+class <%= class_name %>
+  attr <%= attributes.map{|attr| ":#{attr}" }.join(', ') %>
+
+  def initialize(<%= attributes.map{|attr| "#{attr}: nil" }.join(', ') %>)
+    <%= attributes.map{|attr| "@#{attr}" }.join(", ") %> = <%= attributes.join(", ") %>
+  end
+end

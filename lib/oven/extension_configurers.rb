@@ -49,5 +49,11 @@ module Oven
     end
   end
 
+  class ObjectMapperConfigurer
+    def configure_requires(requires)
+      requires << 'models'
+    end
+  end
+
   private_constant :ApiClientConfigurer, :ExceptionConfigurer, :JsonConfigurer
 end

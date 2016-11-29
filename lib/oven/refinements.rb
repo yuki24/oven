@@ -8,7 +8,11 @@ module Oven
         end
 
         def namespace
-          to_s.self[0, rindex('/') || -1].to_sym
+          to_s.namespace.to_sym
+        end
+
+        def deconstantize
+          to_s.deconstantize
         end
       end
 
@@ -26,6 +30,10 @@ module Oven
 
         def namespace
           self[0, rindex('/') || -1]
+        end
+
+        def deconstantize
+          self[0, rindex('::') || 0]
         end
       end
     end

@@ -1,4 +1,4 @@
-Oven.bake :ApiClient, destination: "tmp/" do
+Oven.bake :ApiClient, object_mapping: 'test/examples/models.yml', destination: "tmp/" do
   format :json
 
   get :users,     "/api/v2/users"

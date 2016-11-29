@@ -28,8 +28,10 @@ class ApiClientTest < Minitest::Test
     assert_equal 2, response.json.size
 
     if RUBY_VERSION > '2.2.0'
-      assert_equal 'Yuki', response.json[0][:name]
-      assert_equal 'Matz', response.json[1][:name]
+      users = ObjectMapper.new({}).convert(response.json, to: Array(ApiClient::User))
+
+      assert_equal 'Yuki', users[0].name
+      assert_equal 'Matz', users[1].name
     else
       assert_equal 'Yuki', response.json[0]['name']
       assert_equal 'Matz', response.json[1]['name']

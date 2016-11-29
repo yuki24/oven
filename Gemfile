@@ -5,3 +5,4 @@ gemspec
 
 gem 'purdytest'
 gem 'byebug', platforms: :mri
+gem 'object_mapper'
