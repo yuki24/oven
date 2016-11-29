@@ -31,25 +31,26 @@ module Oven
 
   class ApiClientBuilder
     using Patches::StringExt
-    attr_reader :client_name, :destination, :namespace, :dsl_context
+    attr_reader :client_name, :destination, :dsl_context
 
     extend Forwardable
     delegate [:method_definitions, :interceptors, :observers, :requires] => :dsl_context
 
     def initialize(client_name, destination, context)
       @client_name, @destination, @dsl_context = client_name, destination, context
+    end
 
-      @namespace = client_name.underscore.namespace
+    def namespace
+      client_name.underscore.namespace
     end
 
     def generate
-      root_path = File.join([destination, namespace].compact)
-      filename  = File.basename(client_name.underscore)
+      filename = File.basename(client_name.underscore)
 
-      FileUtils.mkdir_p(root_path)
+      FileUtils.mkdir_p(destination)
       ([ApiClientConfigurer.new] + dsl_context.extensions).each do |extension|
         template = open(extension.template_path).read
-        path     = extension.filename(root_path, filename)
+        path     = extension.filename(destination, filename)
         code     = ERB.new(template, nil, '-').result(binding)
 
         File.write(path, code)
