@@ -36,8 +36,8 @@ module Oven
     extend Forwardable
     delegate [:method_definitions, :interceptors, :observers, :requires] => :dsl_context
 
-    def initialize(client_name, destination, context, &block)
-      @client_name, @destination, @dsl_context, @block = client_name, destination, context, block
+    def initialize(client_name, destination, context)
+      @client_name, @destination, @dsl_context = client_name, destination, context
 
       @namespace = client_name.underscore.namespace
     end
