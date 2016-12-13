@@ -112,7 +112,7 @@ class ApiClientTest < Minitest::Test
 
     error = assert_raises(ApiClient::NetworkError) { @client.get_users }
 
-    assert_equal "A network error occurred: Timeout::Error (execution expired)", error.message
+    assert_equal "A network error occurred: Net::OpenTimeout (execution expired)", error.message
   end
 
   def test_exception_raises_when_bad_request
