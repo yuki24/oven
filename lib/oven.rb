@@ -82,41 +82,34 @@ module Oven
 
       FileUtils.mkdir_p(root_path)
       @data.each do |class_name, attributes|
-        code = ErbContext.new(@namespace, class_name, attributes).to_code
+        namespaced_classname = [@namespace, class_name].compact.join('::')
+
+        code = ErbContext.new(namespaced_classname, attributes.keys).to_code
         path = File.join(root_path, "#{class_name.underscore}.rb")
 
         puts "generated: #{path}"
         File.write(path, code)
       end
 
-      buffer = []
-      @data.keys.map do |class_name|
-        require_path = File.join([@client_name.deconstantize.underscore, 'models', class_name.underscore].compact.reject(&:empty?))
-        buffer << "require '#{require_path}'"
-      end
+      models_code = @data.keys.map do |class_name|
+        "require '#{File.join([@client_name.underscore.namespace, 'models', class_name.underscore].compact)}'"
+      end.join("\n")
 
-      models_path = File.join(@destination, 'models.rb')
-      puts "generated: #{models_path}"
-      File.write(models_path, buffer.join("\n"))
+      puts "generated: #{root_path}.rb"
+      File.write("#{root_path}.rb", models_code)
     end
 
     class ErbContext
+      attr_reader :class_name, :attributes
+
       PORO_TEMPLATE = open("#{__dir__}/oven/templates/poro.rb.erb").read
 
-      def initialize(namespace, class_name, attributes)
-        @namespace, @class_name, @attributes = namespace, class_name, attributes
+      def initialize(class_name, attributes)
+        @class_name, @attributes = class_name, attributes
       end
 
       def to_code
         ERB.new(PORO_TEMPLATE, nil, '-').result(binding)
-      end
-
-      def class_name
-        [@namespace, @class_name].compact.join('::')
-      end
-
-      def attributes
-        @attributes.keys
       end
     end
 
