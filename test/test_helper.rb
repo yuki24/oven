@@ -3,7 +3,7 @@ $LOAD_PATH.unshift File.expand_path('../../tmp', __FILE__)
 require 'oven'
 
 require 'minitest/autorun'
+require 'minitest/pride'
 require 'webmock/minitest'
-require 'purdytest'
 require 'bundler'
 Bundler.require
