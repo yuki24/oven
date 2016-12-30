@@ -17,7 +17,7 @@ class <%= client_name %>
     alias to_s inspect
 
     def parsable?
-      !!body
+      !!body && !body.empty?
     end
   end
 
