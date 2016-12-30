@@ -7,9 +7,9 @@ require '<%= File.join([namespace, _require].compact) %>'
 class <%= client_name %>
   attr_reader :domain, :proxy_addr, :proxy_port, :proxy_user, :proxy_password
 
-  def initialize(domain, proxy_addr: nil, proxy_port: nil, proxy_user: nil, proxy_password: nil)
-    @domain, @proxy_addr, @proxy_port, @proxy_user, @proxy_password, @interceptors, @observers =
-      domain, proxy_addr, proxy_port, proxy_user, proxy_password, [], []
+  def initialize(domain, proxy_addr: nil, proxy_port: nil, proxy_user: nil, proxy_password: nil, **options)
+    @domain, @proxy_addr, @proxy_port, @proxy_user, @proxy_password, @interceptors, @observers, @options =
+      domain, proxy_addr, proxy_port, proxy_user, proxy_password, [], [], DEFAULT_OPTIONS.merge(options)
 
     <%- interceptors.each do |interceptor| -%>
     register_interceptor(<%= interceptor %>.new)
@@ -55,7 +55,7 @@ class <%= client_name %>
   HTTPS = 'https'.freeze
 
   def request(request_class, uri, body, headers, options = {})
-    uri, body, headers, options = @interceptors.reduce([uri, body, headers, DEFAULT_OPTIONS.merge(options)]) {|r, i| i.before_request(*r) }
+    uri, body, headers, options = @interceptors.reduce([uri, body, headers, @options.merge(options)]) {|r, i| i.before_request(*r) }
 
     begin
       response = Net::HTTP.start(uri.host, uri.port, proxy_addr, proxy_port, proxy_user, proxy_password, options, use_ssl: (uri.scheme == HTTPS)) do |http|
