@@ -1,4 +1,6 @@
-class <%= client_name %>
+<%- name_declaration.namespace_or_client_name.each do |name| -%>
+<%= name.type %> <%= name %>
+<%- end -%>
   class APIError < StandardError; end
   class NetworkError < APIError; end
 
@@ -38,4 +40,6 @@ class <%= client_name %>
   end
 
   private_constant :ResponseHandler
+<%- name_declaration.namespace_or_client_name.each do -%>
 end
+<%- end -%>

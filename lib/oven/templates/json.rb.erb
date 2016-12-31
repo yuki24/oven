@@ -1,7 +1,9 @@
 require 'json'
 require 'delegate'
 
-class <%= client_name %>
+<%- name_declaration.namespace_or_client_name.each do |name| -%>
+<%= name.type %> <%= name %>
+<%- end -%>
   class JsonResponse < DelegateClass(Net::HTTPResponse)
     alias response __getobj__
     alias headers to_hash
@@ -40,4 +42,6 @@ class <%= client_name %>
   end
 
   private_constant :JsonSerializer, :JsonDeserializer
+<%- name_declaration.namespace_or_client_name.each do -%>
 end
+<%- end -%>

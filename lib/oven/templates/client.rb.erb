@@ -1,10 +1,12 @@
 # frozen-string-literal: true
 require 'net/http'
 <%- requires.each do |_require| -%>
-require '<%= File.join([namespace, _require].compact) %>'
+require '<%= File.join(name_declaration.select(&:namespace?) << _require) %>'
 <%- end -%>
 
-class <%= client_name %>
+<%- name_declaration.each do |name| -%>
+<%= name.type %> <%= name %>
+<%- end -%>
   attr_reader :domain, :proxy_addr, :proxy_port, :proxy_user, :proxy_password
 
   def initialize(domain, proxy_addr: nil, proxy_port: nil, proxy_user: nil, proxy_password: nil, **options)
@@ -73,4 +75,6 @@ class <%= client_name %>
     uri.query = URI.encode_www_form(query) if !query.empty?
     uri
   end
+<%- name_declaration.each do -%>
 end
+<%- end -%>
