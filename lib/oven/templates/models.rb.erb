@@ -1,0 +1,3 @@
+<%- class_names.each do |class_name| -%>
+require '<%= File.join(@name_declaration.select(&:namespace?) << 'models' << class_name.underscore) %>'
+<%- end -%>

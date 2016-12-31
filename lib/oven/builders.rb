@@ -47,10 +47,11 @@ module Oven
     using Patches::StringExt
     using NameDeclarationExt
 
-    PORO_TEMPLATE = open("#{__dir__}/templates/poro.rb.erb").read
-    ERB_PROCESSOR = -> (class_name, attributes, name_declaration) {
-      ERB.new(PORO_TEMPLATE, nil, '-').result(binding)
-    }
+    MODEL_LODER_TEMPLATE = open("#{__dir__}/templates/models.rb.erb").read
+    PORO_TEMPLATE        = open("#{__dir__}/templates/poro.rb.erb").read
+    ERB_PROCESSOR        = -> (class_name, attributes, name_declaration) {
+                             ERB.new(PORO_TEMPLATE, nil, '-').result(binding)
+                           }
 
     def initialize(filepath, name_declaration, destination)
       @data             = YAML.load_file(filepath)
@@ -70,13 +71,11 @@ module Oven
         File.write(path, code)
       end
 
-      models_code = @data.keys.map do |class_name|
-        path = File.join(@name_declaration.select(&:namespace?) << 'models' << class_name).underscore
-        "require '#{path}'"
-      end.join("\n")
+      class_names  = @data.keys
+      model_loader = ERB.new(MODEL_LODER_TEMPLATE, nil, '-').result(binding)
 
       puts "generated: #{root_path}.rb"
-      File.write("#{root_path}.rb", models_code)
+      File.write("#{root_path}.rb", model_loader)
     end
   end
 
