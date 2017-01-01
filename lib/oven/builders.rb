@@ -28,12 +28,10 @@ module Oven
     end
 
     def generate
-      filename = name_declaration.client_name.underscore
-
       FileUtils.mkdir_p(destination)
       ([ApiClientConfigurer.new] + dsl_context.extensions).each do |extension|
         template = open(extension.template_path).read
-        path     = extension.filename(destination, filename)
+        path     = extension.filename(destination, name_declaration.client_name.underscore)
         code     = ERB.new(template, nil, '-').result(binding)
 
         puts "generated: #{path}"
