@@ -28,12 +28,13 @@ module Oven
 
     context = DslContext.new(@@extensions.dup, @@format_mapping.dup)
     context.instance_eval(&block)
-    context.extensions.each {|extension| context.configure(extension) }
 
     if object_mapping
       PoroGenerator.new(object_mapping, name_declaration, destination).generate
-      context.configure(ObjectMapperConfigurer.new)
+      context.extensions << ObjectMapperConfigurer.new(object_mapping)
     end
+
+    context.extensions.each {|extension| context.configure(extension) }
 
     ApiClientBuilder.new(name_declaration, destination, context).generate
   end

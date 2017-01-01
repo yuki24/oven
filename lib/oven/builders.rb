@@ -47,29 +47,10 @@ module Oven
     using Patches::StringExt
     using NameDeclarationExt
 
-    MODEL_LODER_TEMPLATE = open("#{__dir__}/templates/models.rb.erb").read
-    PORO_TEMPLATE        = open("#{__dir__}/templates/poro.rb.erb").read
-
+    PORO_TEMPLATE = open("#{__dir__}/templates/poro.rb.erb").read
     ERB_PROCESSOR = -> (class_name, attributes, name_declaration) {
                      ERB.new(PORO_TEMPLATE, nil, '-').result(binding)
                     }
-
-    PRIMITIVE_CLASSES = [
-      'Integer',
-      'String',
-      'Boolean',
-      'Date',
-      'Time',
-      'DateTime',
-      'Hash',
-      'Array(Integer)',
-      'Array(String)',
-      'Array(Boolean)',
-      'Array(Date)',
-      'Array(Time)',
-      'Array(DateTime)',
-      'Array(Hash)'
-    ].freeze
 
     def initialize(filepath, name_declaration, destination)
       @data             = YAML.load_file(filepath)
@@ -88,12 +69,6 @@ module Oven
         puts "generated: #{path}"
         File.write(path, code)
       end
-
-      class_names  = @data.keys
-      model_loader = ERB.new(MODEL_LODER_TEMPLATE, nil, '-').result(binding)
-
-      puts "generated: #{root_path}.rb"
-      File.write("#{root_path}.rb", model_loader)
     end
   end
 
