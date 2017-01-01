@@ -23,10 +23,12 @@ require '<%= File.join(name_declaration.select(&:namespace?).map(&:underscore) <
 
   def register_interceptor(interceptor)
     @interceptors << interceptor
+    self
   end
 
   def register_observer(observer)
     @observers << observer
+    self
   end
   <%- method_definitions.each do |definition| %>
   def <%= definition.method_name %>(<%= definition.parameter_signature %><%= ', ' if !definition.parameters.empty? %>query: {}, headers: {}, **options)
