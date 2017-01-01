@@ -28,7 +28,7 @@ module Oven
     end
 
     def generate
-      filename = File.basename(name_declaration.client_name.underscore)
+      filename = name_declaration.client_name.underscore
 
       FileUtils.mkdir_p(destination)
       ([ApiClientConfigurer.new] + dsl_context.extensions).each do |extension|
