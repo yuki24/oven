@@ -1,7 +1,7 @@
 # frozen-string-literal: true
 require 'net/http'
 <%- requires.each do |_require| -%>
-require '<%= File.join(name_declaration.select(&:namespace?) << _require) %>'
+require '<%= File.join(name_declaration.select(&:namespace?).map(&:underscore) << _require) %>'
 <%- end -%>
 
 <%- name_declaration.each do |name| -%>

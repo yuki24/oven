@@ -49,9 +49,27 @@ module Oven
 
     MODEL_LODER_TEMPLATE = open("#{__dir__}/templates/models.rb.erb").read
     PORO_TEMPLATE        = open("#{__dir__}/templates/poro.rb.erb").read
-    ERB_PROCESSOR        = -> (class_name, attributes, name_declaration) {
-                             ERB.new(PORO_TEMPLATE, nil, '-').result(binding)
-                           }
+
+    ERB_PROCESSOR = -> (class_name, attributes, name_declaration) {
+                     ERB.new(PORO_TEMPLATE, nil, '-').result(binding)
+                    }
+
+    PRIMITIVE_CLASSES = [
+      'Integer',
+      'String',
+      'Boolean',
+      'Date',
+      'Time',
+      'DateTime',
+      'Hash',
+      'Array(Integer)',
+      'Array(String)',
+      'Array(Boolean)',
+      'Array(Date)',
+      'Array(Time)',
+      'Array(DateTime)',
+      'Array(Hash)'
+    ].freeze
 
     def initialize(filepath, name_declaration, destination)
       @data             = YAML.load_file(filepath)

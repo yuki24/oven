@@ -1,3 +1,21 @@
 <%- class_names.each do |class_name| -%>
-require '<%= File.join(@name_declaration.select(&:namespace?) << 'models' << class_name.underscore) %>'
+require '<%= File.join(@name_declaration.select(&:namespace?).map(&:underscore) << 'models' << class_name.underscore) %>'
+<%- end -%>
+
+<%- @name_declaration.namespace_or_client_name.each do |name| -%>
+<%= name.type %> <%= name %>
+<%- end -%>
+  ATTRS_TO_CLASSES = {
+    <%- @data.each do |class_name, attrs| -%>
+    <%= class_name %> => {
+      <%- attrs.each do |attr_name, attr_class| -%>
+      <%- if !PRIMITIVE_CLASSES.include?(attr_class) -%>
+      <%= attr_name %>: <%= attr_class %>,
+      <%- end -%>
+      <%- end -%>
+    },
+    <%- end -%>
+  }
+<%- @name_declaration.namespace_or_client_name.each do -%>
+end
 <%- end -%>
