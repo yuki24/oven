@@ -116,24 +116,24 @@ class ApiClientTest < Minitest::Test
   end
 
   def test_exception_raises_when_bad_request
-    stub_request(:any, /http:\/\/example\.org\/*/).to_return(status: 400, body: 'Error')
+    stub_request(:any, /http:\/\/example\.org\/*/).to_return(status: 400, body: 'The request was bad')
 
     error = assert_raises(ApiClient::BadRequest){ @client.get_users }
 
     message, response = error.message, error.response
-    assert_equal "Receieved an error response: 400 BadRequest", message
+    assert_equal "Receieved an error response 400 BadRequest: The request was bad", message
     assert_equal "400", response.code
-    assert_equal "Error", response.body
+    assert_equal "The request was bad", response.body
   end
 
   def test_exception_raises_when_internal_server_error
-    stub_request(:any, /http:\/\/example\.org\/*/).to_return(status: 500, body: 'Error')
+    stub_request(:any, /http:\/\/example\.org\/*/).to_return(status: 500, body: 'Something went wrong')
 
     error = assert_raises(ApiClient::InternalServerError){ @client.get_users }
 
     message, response = error.message, error.response
-    assert_equal "Receieved an error response: 500 InternalServerError", message
+    assert_equal "Receieved an error response 500 InternalServerError: Something went wrong", message
     assert_equal "500", response.code
-    assert_equal "Error", response.body
+    assert_equal "Something went wrong", response.body
   end
 end
