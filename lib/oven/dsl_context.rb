@@ -23,44 +23,45 @@ module Oven
       extension.configure_requires(@requires) if extension.respond_to?(:configure_requires)
     end
 
-    def get(resource_name, path, as: nil)
-      @method_definitions << HttpVerb.new(:get, resource_name, path, as: as, aliases: ["find_#{resource_name}"], has_entity: false)
+    def get(resource_name, path, as: nil, **options)
+      @method_definitions << HttpVerb.new(:get, resource_name, path, as: as, aliases: ["find_#{resource_name}"], has_entity: false, **options)
     end
 
-    def head(resource_name, path, as: nil)
-      @method_definitions << HttpVerb.new(:head, resource_name, path, as: as, aliases: [], has_entity: false)
+    def head(resource_name, path, as: nil, **options)
+      @method_definitions << HttpVerb.new(:head, resource_name, path, as: as, aliases: [], has_entity: false, **options)
     end
 
-    def post(resource_name, path, as: nil)
-      @method_definitions << HttpVerb.new(:post, resource_name, path, as: as, aliases: ["create_#{resource_name}"], has_entity: true)
+    def post(resource_name, path, as: nil, **options)
+      @method_definitions << HttpVerb.new(:post, resource_name, path, as: as, aliases: ["create_#{resource_name}"], has_entity: true, **options)
     end
 
-    def put(resource_name, path, as: nil)
-      @method_definitions << HttpVerb.new(:put, resource_name, path, as: as, aliases: ["update_#{resource_name}"], has_entity: true)
+    def put(resource_name, path, as: nil, **options)
+      @method_definitions << HttpVerb.new(:put, resource_name, path, as: as, aliases: ["update_#{resource_name}"], has_entity: true, **options)
     end
 
-    def patch(resource_name, path, as: nil)
-      @method_definitions << HttpVerb.new(:patch, resource_name, path, as: as, aliases: ["update_#{resource_name}"], has_entity: true)
+    def patch(resource_name, path, as: nil, **options)
+      @method_definitions << HttpVerb.new(:patch, resource_name, path, as: as, aliases: ["update_#{resource_name}"], has_entity: true, **options)
     end
 
-    def delete(resource_name, path, as: nil)
-      @method_definitions << HttpVerb.new(:delete, resource_name, path, as: as, aliases: ["destroy_#{resource_name}"], has_entity: false)
+    def delete(resource_name, path, as: nil, **options)
+      @method_definitions << HttpVerb.new(:delete, resource_name, path, as: as, aliases: ["destroy_#{resource_name}"], has_entity: false, **options)
     end
 
-    def options(resource_name, path, as: nil)
-      @method_definitions << HttpVerb.new(:options, resource_name, path, as: as, aliases: [], has_entity: false)
+    def options(resource_name, path, as: nil, **options)
+      @method_definitions << HttpVerb.new(:options, resource_name, path, as: as, aliases: [], has_entity: false, **options)
     end
 
     class HttpVerb
-      attr_reader :verb, :name, :method_name, :aliases
+      attr_reader :verb, :name, :method_name, :aliases, :options
 
-      def initialize(verb, name, path, as: nil, aliases: [], has_entity: false)
+      def initialize(verb, name, path, as: nil, aliases: [], has_entity: false, **options)
         @verb        = verb
         @name        = name
         @path_ast    = Oven::PathParser.parse(path)
         @method_name = as || "#{verb}_#{name}"
         @aliases     = as ? [] : aliases
         @has_entity  = has_entity
+        @options     = options
       end
 
       def variable_name_for_body
