@@ -31,7 +31,8 @@ module Oven
 
     if object_mapping
       PoroGenerator.new(object_mapping, name_declaration, destination).generate
-      context.extensions << ObjectMapperConfigurer.new(object_mapping)
+      context.extensions << ModelsConfigurer.new(object_mapping)
+      context.extensions << ObjectMapperConfigurer.new(context.method_definitions)
     end
 
     context.extensions.each {|extension| context.configure(extension) }

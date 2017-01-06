@@ -49,7 +49,7 @@ module Oven
     end
   end
 
-  class ObjectMapperConfigurer
+  class ModelsConfigurer
     PRIMITIVE_CLASSES = [
       'Integer',
       'String',
@@ -96,5 +96,30 @@ module Oven
     end
   end
 
-  private_constant :ApiClientConfigurer, :ExceptionConfigurer, :JsonConfigurer, :ObjectMapperConfigurer
+  class ObjectMapperConfigurer
+    attr_reader :method_definitions
+
+    def initialize(method_definitions)
+      @method_definitions = method_definitions
+    end
+
+    def filename(path, client_filename)
+      File.join(path, 'object_mapping.rb')
+    end
+
+    def template_path
+      "#{__dir__}/templates/object_mapping.rb.erb"
+    end
+
+    def configure_observers(observers)
+      observers << 'ObjectConverter'
+    end
+
+    def configure_requires(requires)
+      requires << 'object_mapping'
+    end
+  end
+
+  private_constant :ApiClientConfigurer, :ExceptionConfigurer, :JsonConfigurer, :ObjectMapperConfigurer,
+                   :ModelsConfigurer
 end
