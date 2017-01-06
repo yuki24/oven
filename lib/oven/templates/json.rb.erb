@@ -36,7 +36,7 @@ require 'delegate'
   end
 
   class JsonDeserializer
-    def received_response(response)
+    def received_response(response, options)
       JsonResponse.new(response)
     end
   end
