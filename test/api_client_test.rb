@@ -19,7 +19,7 @@ class ApiClientTest < Minitest::Test
   end
 
   def test_json_response
-    response_json = [{ name: 'Yuki' }, { name: 'Matz' }].to_json
+    response_json = [{ name: 'Yuki', self: 'self' }, { name: 'Matz' }].to_json
     stub_request(:any, /http:\/\/example\.org\/*/).to_return(body: response_json, headers: { 'Content-Length' => 42 })
 
     response = @client.get_users(query: {page: 1})
@@ -30,6 +30,7 @@ class ApiClientTest < Minitest::Test
     users = response.object
 
     assert_equal 'Yuki', response.object[0].name
+    assert_equal 'self', response.object[0].self
     assert_equal 'Matz', response.object[1].name
     assert_equal 'Yuki', response.json[0][:name]
     assert_equal 'Matz', response.json[1][:name]

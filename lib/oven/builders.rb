@@ -45,8 +45,16 @@ module Oven
     using Patches::StringExt
     using NameDeclarationExt
 
+    REVERSED_KEYWORD_MAP = {
+      'self'   => 'binding.local_variable_get(:self)',
+      'class'  => 'binding.local_variable_get(:class)',
+      'end'    => 'binding.local_variable_get(:end)',
+      'if'     => 'binding.local_variable_get(:if)',
+      'unless' => 'binding.local_variable_get(:unless)'
+    }.freeze
+
     PORO_TEMPLATE = open("#{__dir__}/templates/poro.rb.erb").read
-    ERB_PROCESSOR = -> (class_name, attributes, name_declaration) {
+    ERB_PROCESSOR = -> (class_name, attributes, name_declaration, reserved_keyword_map) {
                      ERB.new(PORO_TEMPLATE, nil, '-').result(binding)
                     }
 
@@ -61,7 +69,7 @@ module Oven
 
       FileUtils.mkdir_p(root_path)
       @data.each do |class_name, attributes|
-        code = ERB_PROCESSOR.call(class_name, attributes.keys, @name_declaration)
+        code = ERB_PROCESSOR.call(class_name, attributes.keys, @name_declaration, REVERSED_KEYWORD_MAP)
         path = File.join(root_path, "#{class_name.underscore}.rb")
 
         puts "generated: #{path}"

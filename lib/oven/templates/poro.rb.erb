@@ -5,7 +5,7 @@
     attr <%= attributes.map{|attr| ":#{attr}" }.join(', ') %>
 
     def initialize(<%= attributes.map{|attr| "#{attr}: nil" }.join(', ') %>)
-      <%= attributes.map{|attr| "@#{attr}" }.join(", ") %> = <%= attributes.join(", ") %>
+      <%= attributes.map{|attr| "@#{attr}" }.join(", ") %> = <%= attributes.map{|attr| reserved_keyword_map.fetch(attr.to_s, attr) }.join(", ") %>
     end
   end
 <%- name_declaration.namespace_or_client_name.each do -%>
