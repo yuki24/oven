@@ -30,6 +30,7 @@ require 'object_mapper'
     def object
       OBJECT_MAPPER.convert(json, to: @target_class)
     end
+    alias body_as_object object
   end
 
   private_constant :ObjectConverter, :ObjectResponse
