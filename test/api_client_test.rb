@@ -56,7 +56,7 @@ class ApiClientTest < Minitest::Test
     assert_requested :head, "http://example.org/api/v2/users",
                      headers: {'Accept' => 'application/json', 'Content-Type' => 'application/json'}
 
-    assert_nil response.body
+    assert_empty response.body
   end
 
   def test_post_single_resource

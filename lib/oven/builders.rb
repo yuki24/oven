@@ -32,7 +32,7 @@ module Oven
       ([ApiClientConfigurer.new] + dsl_context.extensions).each do |extension|
         template = open(extension.template_path).read
         path     = extension.filename(destination, name_declaration.client_name.underscore)
-        code     = ERB.new(template, nil, '-').result(binding)
+        code     = ERB.new(template, trim_mode: '-').result(binding)
 
         puts "generated: #{path}"
         File.write(path, code)
@@ -55,7 +55,7 @@ module Oven
 
     PORO_TEMPLATE = open("#{__dir__}/templates/poro.rb.erb").read
     ERB_PROCESSOR = -> (class_name, attributes, name_declaration, reserved_keyword_map) {
-                     ERB.new(PORO_TEMPLATE, nil, '-').result(binding)
+                      ERB.new(PORO_TEMPLATE, trim_mode: '-').result(binding)
                     }
 
     def initialize(filepath, name_declaration, destination)

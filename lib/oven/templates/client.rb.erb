@@ -58,7 +58,7 @@ require '<%= File.join(name_declaration.select(&:namespace?).map(&:underscore) <
 
   HTTPS = 'https'.freeze
 
-  def request(request_class, uri, body, headers, options = {})
+  def request(request_class, uri, body, headers, **options)
     uri, body, headers, options = @interceptors.reduce([uri, body, headers, @options.merge(options)]) {|r, i| i.before_request(*r) }
 
     response = begin
