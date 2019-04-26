@@ -1,7 +1,6 @@
 language: ruby
-script:   bundle exec rake
-cache:    bundler
-sudo:     false
+script: bundle exec rake
+cache: bundler
 
 before_install: gem install bundler -v 1.17.3
 
@@ -20,4 +19,3 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby-9.2.7.0
     - rvm: jruby-head
-  fast_finish: true
