@@ -32,7 +32,11 @@ module Oven
       ([ApiClientConfigurer.new] + dsl_context.extensions).each do |extension|
         template = open(extension.template_path).read
         path     = extension.filename(destination, name_declaration.client_name.underscore)
-        code     = ERB.new(template, trim_mode: '-').result(binding)
+        code     = if RUBY_VERSION < "2.6"
+                     ERB.new(template, nil, '-').result(binding)
+                   else
+                     ERB.new(template, trim_mode: '-').result(binding)
+                   end
 
         puts "generated: #{path}"
         File.write(path, code)
@@ -54,9 +58,14 @@ module Oven
     }.freeze
 
     PORO_TEMPLATE = open("#{__dir__}/templates/poro.rb.erb").read
-    ERB_PROCESSOR = -> (class_name, attributes, name_declaration, reserved_keyword_map) {
-                      ERB.new(PORO_TEMPLATE, trim_mode: '-').result(binding)
-                    }
+    ERB_PROCESSOR = \
+      -> (class_name, attributes, name_declaration, reserved_keyword_map) {
+        if RUBY_VERSION < "2.6"
+          ERB.new(PORO_TEMPLATE, nil, '-').result(binding)
+        else
+          ERB.new(PORO_TEMPLATE, trim_mode: '-').result(binding)
+        end
+      }
 
     def initialize(filepath, name_declaration, destination)
       @data             = YAML.load_file(filepath)
